@@ -1,0 +1,191 @@
+<!-- ====================================================================
+     pages/home.ejs — Halaman Beranda TomatoScan
+     ==================================================================== -->
+
+<%- include('../layout/main_top') %>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     HERO SECTION
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section class="relative min-h-[calc(100vh-64px)] flex flex-col items-center justify-center px-6 py-24 overflow-hidden">
+
+  <!-- Background radial gradient merah halus -->
+  <div class="absolute inset-0 pointer-events-none"
+       style="background: radial-gradient(ellipse 70% 55% at 50% 0%, rgba(192,57,43,0.07) 0%, transparent 70%);">
+  </div>
+
+  <!-- Dot pattern dekoratif -->
+  <div class="absolute inset-0 pointer-events-none opacity-50"
+       style="background-image: radial-gradient(circle, rgba(192,57,43,0.15) 1px, transparent 1px); background-size: 28px 28px;">
+  </div>
+
+  <!-- Badge pill -->
+  <div class="relative inline-flex items-center gap-2 bg-[#FEF0EF] border border-[#C0392B]/25 text-[#C0392B]
+              text-sm font-medium px-4 py-2 rounded-full mb-8 animate-fade-down">
+    <span class="w-2 h-2 rounded-full bg-[#C0392B] animate-pulse"></span>
+    Deteksi Berbasis AI — MobileNetV2
+  </div>
+
+  <!-- Heading utama -->
+  <h1 class="relative font-heading font-extrabold text-center leading-tight max-w-3xl animate-fade-down delay-100"
+      style="font-size: clamp(2.2rem, 4.5vw, 3.6rem);">
+    Deteksi Penyakit Tanaman Tomat<br>
+    <em class="text-[#C0392B] not-italic">Secara Akurat &amp; Instan</em>
+  </h1>
+
+  <!-- Subtext -->
+  <p class="relative mt-5 text-center max-w-xl text-[#7A7870] leading-relaxed font-light text-lg animate-fade-down delay-200">
+    Unggah foto daun atau buah tomat Anda, dan biarkan AI kami menganalisis
+    penyakit serta memberikan saran pengobatan yang tepat.
+  </p>
+
+  <!-- Dua tombol CTA -->
+  <div class="relative flex flex-wrap gap-3 justify-center mt-10 animate-fade-down delay-300">
+    <a href="/predict"
+       class="inline-flex items-center gap-2 bg-[#C0392B] hover:bg-[#922B21] text-white
+              font-heading font-semibold px-7 py-3.5 rounded-xl transition-all duration-200
+              shadow-lg shadow-[#C0392B]/20 hover:shadow-xl hover:-translate-y-0.5 no-underline">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+      </svg>
+      Mulai Prediksi
+    </a>
+    <a href="/history"
+       class="inline-flex items-center gap-2 bg-white border border-[#E8E6E0] hover:border-[#C0392B]
+              hover:text-[#C0392B] text-[#1C1A16] font-heading font-semibold px-7 py-3.5 rounded-xl
+              transition-all duration-200 hover:-translate-y-0.5 no-underline">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+      </svg>
+      Lihat Riwayat
+    </a>
+  </div>
+
+  <!-- Statistik kecil -->
+  <div class="relative flex flex-wrap gap-8 justify-center mt-14 animate-fade-up delay-400">
+    <div class="text-center">
+      <div class="font-heading font-extrabold text-2xl text-[#C0392B]">10+</div>
+      <div class="text-xs text-[#7A7870] mt-0.5">Jenis Penyakit</div>
+    </div>
+    <div class="w-px bg-[#E8E6E0] self-stretch hidden md:block"></div>
+    <div class="text-center">
+      <div class="font-heading font-extrabold text-2xl text-[#C0392B]">94%</div>
+      <div class="text-xs text-[#7A7870] mt-0.5">Akurasi Model</div>
+    </div>
+    <div class="w-px bg-[#E8E6E0] self-stretch hidden md:block"></div>
+    <div class="text-center">
+      <div class="font-heading font-extrabold text-2xl text-[#C0392B]">&lt;3s</div>
+      <div class="text-xs text-[#7A7870] mt-0.5">Waktu Analisis</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     FEATURE CARDS SECTION
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section class="max-w-5xl mx-auto px-6 pb-24">
+  <div class="text-center mb-12">
+    <span class="text-xs font-heading font-bold uppercase tracking-widest text-[#7A7870]">Fitur Unggulan</span>
+    <h2 class="font-heading font-extrabold text-2xl md:text-3xl mt-3 text-[#1C1A16]">
+      Semua yang Anda Butuhkan
+    </h2>
+    <p class="text-[#7A7870] mt-2 font-light">Solusi lengkap untuk deteksi dan penanganan penyakit tomat.</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+    <!-- Kartu 1: Deteksi Akurat -->
+    <div class="bg-white border border-[#E8E6E0] rounded-2xl p-6 hover:-translate-y-1 hover:shadow-lg
+                transition-all duration-300 group">
+      <div class="w-11 h-11 rounded-xl bg-[#FEF0EF] flex items-center justify-center mb-4
+                  group-hover:bg-[#C0392B] transition-colors duration-300">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#C0392B] group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+        </svg>
+      </div>
+      <h3 class="font-heading font-bold text-base mb-2 text-[#1C1A16]">Deteksi Akurat</h3>
+      <p class="text-sm text-[#7A7870] leading-relaxed font-light">
+        Model AI terlatih dengan ribuan sampel gambar penyakit tomat untuk akurasi hingga 94%.
+      </p>
+      <div class="mt-4 pt-4 border-t border-[#E8E6E0] flex items-center gap-2 text-xs text-[#C0392B] font-medium">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+        MobileNetV2 Architecture
+      </div>
+    </div>
+
+    <!-- Kartu 2: Saran Pengobatan -->
+    <div class="bg-white border border-[#E8E6E0] rounded-2xl p-6 hover:-translate-y-1 hover:shadow-lg
+                transition-all duration-300 group">
+      <div class="w-11 h-11 rounded-xl bg-[#E8F5EA] flex items-center justify-center mb-4
+                  group-hover:bg-[#2D7A3A] transition-colors duration-300">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#2D7A3A] group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+        </svg>
+      </div>
+      <h3 class="font-heading font-bold text-base mb-2 text-[#1C1A16]">Saran Pengobatan</h3>
+      <p class="text-sm text-[#7A7870] leading-relaxed font-light">
+        Dapatkan rekomendasi penanganan spesifik berdasarkan jenis penyakit dan tingkat keparahan.
+      </p>
+      <div class="mt-4 pt-4 border-t border-[#E8E6E0] flex items-center gap-2 text-xs text-[#2D7A3A] font-medium">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+        Berbasis Penelitian Pertanian
+      </div>
+    </div>
+
+    <!-- Kartu 3: Riwayat Lengkap -->
+    <div class="bg-white border border-[#E8E6E0] rounded-2xl p-6 hover:-translate-y-1 hover:shadow-lg
+                transition-all duration-300 group">
+      <div class="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center mb-4
+                  group-hover:bg-amber-500 transition-colors duration-300">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-amber-500 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+        </svg>
+      </div>
+      <h3 class="font-heading font-bold text-base mb-2 text-[#1C1A16]">Riwayat Lengkap</h3>
+      <p class="text-sm text-[#7A7870] leading-relaxed font-light">
+        Semua hasil prediksi tersimpan otomatis dan dapat diakses kapan saja untuk monitoring.
+      </p>
+      <div class="mt-4 pt-4 border-t border-[#E8E6E0] flex items-center gap-2 text-xs text-amber-600 font-medium">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+        Filter &amp; Kelola Riwayat
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Banner bawah -->
+<section class="max-w-5xl mx-auto px-6 pb-24">
+  <div class="relative rounded-3xl overflow-hidden bg-[#1C1A16] px-8 py-12 text-center">
+    <div class="absolute inset-0 pointer-events-none"
+         style="background: radial-gradient(ellipse 50% 80% at 80% 50%, rgba(192,57,43,0.15) 0%, transparent 60%),
+                            radial-gradient(ellipse 40% 60% at 20% 50%, rgba(45,122,58,0.1) 0%, transparent 60%);">
+    </div>
+    <div class="relative">
+      <h2 class="font-heading font-extrabold text-white text-2xl md:text-3xl mb-3">
+        Siap Mendeteksi Penyakit Tomat?
+      </h2>
+      <p class="text-white/50 font-light mb-8 max-w-md mx-auto">
+        Cukup foto, dan AI kami akan memberikan diagnosis dalam hitungan detik.
+      </p>
+      <a href="/predict"
+         class="inline-flex items-center gap-2 bg-[#C0392B] hover:bg-[#922B21] text-white
+                font-heading font-semibold px-8 py-3.5 rounded-xl transition-all duration-200
+                shadow-lg shadow-[#C0392B]/30 hover:-translate-y-0.5 no-underline">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        Mulai Prediksi Sekarang
+      </a>
+    </div>
+  </div>
+</section>
+
+<%- include('../layout/main_bottom') %>

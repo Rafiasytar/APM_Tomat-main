@@ -1,0 +1,30 @@
+{
+  "name": "tomatoscan-frontend",
+  "version": "1.0.0",
+  "description": "Frontend TomatoScan — Deteksi Penyakit Tanaman Tomat",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "dependencies": {
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.22.3",
+    "sequelize": "^6.37.8"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "tomato",
+    "disease",
+    "detection",
+    "ai",
+    "express",
+    "ejs"
+  ],
+  "author": "TomatoScan Dev",
+  "license": "MIT"
+}

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title : 'TomatoScan' %></title>
+  <meta name="description" content="TomatoScan — Deteksi penyakit tanaman tomat secara akurat dan instan menggunakan kecerdasan buatan.">
+
+  <!-- Google Fonts: Plus Jakarta Sans + DM Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS via CDN Play (tidak perlu build step) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Konfigurasi custom color Tailwind untuk TomatoScan
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            heading: ['"Plus Jakarta Sans"', 'sans-serif'],
+            body:    ['"DM Sans"', 'sans-serif'],
+          },
+          colors: {
+            // Warna utama tomat (merah)
+            tomato: {
+              50:  '#FEF0EF',
+              100: '#FCDAD7',
+              200: '#F9B6B0',
+              300: '#F47D73',
+              400: '#EC5145',
+              500: '#C0392B',
+              600: '#A8321F',
+              700: '#922B21',
+              800: '#7A2018',
+              900: '#5C1610',
+            },
+            // Warna daun (hijau)
+            leaf: {
+              50:  '#E8F5EA',
+              100: '#C8E6CC',
+              200: '#A5D6AA',
+              300: '#6DB876',
+              400: '#4CAF50',
+              500: '#2D7A3A',
+              600: '#256630',
+              700: '#1E5228',
+              800: '#163D1E',
+              900: '#0D2912',
+            },
+            // Warna latar & permukaan
+            bg:      '#FAFAF8',
+            surface: '#FFFFFF',
+            border:  '#E8E6E0',
+            muted:   '#7A7870',
+            text:    '#1C1A16',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Style global tambahan (scrollbar, animasi, dll.) -->
+  <style type="text/tailwindcss">
+    @layer base {
+      body {
+        font-family: 'DM Sans', sans-serif;
+        background-color: #FAFAF8;
+        color: #1C1A16;
+      }
+      * { scroll-behavior: smooth; }
+    }
+
+    @layer utilities {
+      /* Animasi fade-down untuk hero section */
+      .animate-fade-down {
+        animation: fadeDown 0.6s ease both;
+      }
+      .animate-fade-up {
+        animation: fadeUp 0.7s ease both;
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.4s ease both;
+      }
+      /* Delay utilities */
+      .delay-100 { animation-delay: 0.1s; }
+      .delay-200 { animation-delay: 0.2s; }
+      .delay-300 { animation-delay: 0.3s; }
+      .delay-400 { animation-delay: 0.4s; }
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* Scrollbar tipis */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #FAFAF8; }
+    ::-webkit-scrollbar-thumb { background: #E8E6E0; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #C0392B; }
+
+    /* Accuracy bar animation */
+    .acc-bar-fill { transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- Navbar parsial -->
+  <%- include('../partials/navbar') %>
+
+  <!-- Konten halaman utama -->
+  <main>
+    <%- body %>
+  </main>
+
+  <!-- Footer parsial -->
+  <%- include('../partials/footer') %>
+
+  <!-- Script client-side utama -->
+  <script src="/js/main.js"></script>
+
+</body>
+</html>

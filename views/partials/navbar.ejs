@@ -1,0 +1,100 @@
+<!-- ====================================================================
+     partials/navbar.ejs — Navigasi Sticky dengan Blur Background
+     ==================================================================== -->
+
+<nav class="sticky top-0 z-50 backdrop-blur-md bg-white/90 border-b border-[#E8E6E0]">
+  <div class="max-w-6xl mx-auto h-16 flex items-center justify-between px-6 lg:px-8">
+
+    <!-- Logo TomatoScan -->
+    <a href="/" class="flex items-center gap-2.5 no-underline group">
+      <!-- Ikon tomat SVG inline -->
+      <div class="w-8 h-8 rounded-lg bg-[#C0392B] flex items-center justify-center shadow-sm group-hover:bg-[#922B21] transition-colors">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
+          <!-- Batang hijau -->
+          <path d="M12 4 C12 4, 10 2, 8 3" stroke="#4CAF50" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M12 4 C12 4, 14 2, 16 3" stroke="#4CAF50" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M12 4 V7" stroke="#4CAF50" stroke-width="1.5" stroke-linecap="round"/>
+          <!-- Buah tomat -->
+          <circle cx="12" cy="14" r="7" fill="rgba(255,255,255,0.9)"/>
+          <circle cx="10" cy="12" r="2.5" fill="rgba(255,255,255,0.4)"/>
+        </svg>
+      </div>
+      <span class="font-heading font-extrabold text-xl text-[#1C1A16] tracking-tight">
+        Tomato<span class="text-[#C0392B]">Scan</span>
+      </span>
+    </a>
+
+    <!-- Link navigasi desktop -->
+    <ul class="hidden md:flex items-center gap-1 list-none m-0 p-0">
+      <li>
+        <a href="/"
+           class="text-sm font-medium px-3 py-1.5 rounded-lg transition-all duration-200 no-underline
+                  <%= activePage === 'home'
+                      ? 'bg-[#FEF0EF] text-[#C0392B]'
+                      : 'text-[#7A7870] hover:text-[#C0392B] hover:bg-[#FEF0EF]' %>">
+          Beranda
+        </a>
+      </li>
+      <li>
+        <a href="/predict"
+           class="text-sm font-medium px-3 py-1.5 rounded-lg transition-all duration-200 no-underline
+                  <%= activePage === 'predict'
+                      ? 'bg-[#FEF0EF] text-[#C0392B]'
+                      : 'text-[#7A7870] hover:text-[#C0392B] hover:bg-[#FEF0EF]' %>">
+          Prediksi
+        </a>
+      </li>
+      <li>
+        <a href="/history"
+           class="text-sm font-medium px-3 py-1.5 rounded-lg transition-all duration-200 no-underline
+                  <%= activePage === 'history'
+                      ? 'bg-[#FEF0EF] text-[#C0392B]'
+                      : 'text-[#7A7870] hover:text-[#C0392B] hover:bg-[#FEF0EF]' %>">
+          Riwayat
+        </a>
+      </li>
+    </ul>
+
+    <!-- Tombol CTA kanan -->
+    <a href="/predict"
+       class="hidden md:inline-flex items-center gap-2 bg-[#C0392B] hover:bg-[#922B21]
+              text-white text-sm font-heading font-semibold px-4 py-2 rounded-lg
+              transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 no-underline">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+      </svg>
+      Mulai Scan
+    </a>
+
+    <!-- Hamburger mobile (toggle) -->
+    <button id="mobile-menu-btn"
+            class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg border border-[#E8E6E0]
+                   text-[#7A7870] hover:bg-[#FEF0EF] hover:text-[#C0392B] transition-colors"
+            onclick="toggleMobileMenu()">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile menu dropdown -->
+  <div id="mobile-menu"
+       class="md:hidden hidden border-t border-[#E8E6E0] bg-white/95 backdrop-blur-md px-6 py-3 space-y-1">
+    <a href="/"
+       class="block text-sm font-medium px-3 py-2 rounded-lg transition-colors no-underline
+              <%= activePage === 'home' ? 'bg-[#FEF0EF] text-[#C0392B]' : 'text-[#7A7870] hover:text-[#C0392B]' %>">
+      🏠 Beranda
+    </a>
+    <a href="/predict"
+       class="block text-sm font-medium px-3 py-2 rounded-lg transition-colors no-underline
+              <%= activePage === 'predict' ? 'bg-[#FEF0EF] text-[#C0392B]' : 'text-[#7A7870] hover:text-[#C0392B]' %>">
+      🔬 Prediksi Penyakit
+    </a>
+    <a href="/history"
+       class="block text-sm font-medium px-3 py-2 rounded-lg transition-colors no-underline
+              <%= activePage === 'history' ? 'bg-[#FEF0EF] text-[#C0392B]' : 'text-[#7A7870] hover:text-[#C0392B]' %>">
+      📋 Riwayat Prediksi
+    </a>
+  </div>
+</nav>

@@ -1,0 +1,296 @@
+/**
+ * app.js — Entry point Express untuk TomatoScan
+ * Menangani semua routing dengan data dummy (tanpa koneksi ML)
+ */
+
+const express = require('express');
+const path    = require('path');
+const multer  = require('multer');
+const fs      = require('fs');
+const sequelize = require('./config/database');
+const History   = require('./models/History');
+const Disease   = require('./models/Disease');
+
+const diseaseMapping = {
+    "Tomato_Bacterial_spot": "Tomato Bacterial spot",
+    "Tomato_Early_blight": "Tomato Early blight",
+    "Tomato_Late_blight": "Tomato Late blight",
+    "Tomato_Leaf_Miner": "Tomato Leaf Miner",
+    "Tomato_Leaf_Mold": "Tomato Leaf Mold",
+    "Tomato_Mosaic_Virus": "Tomato mosaic virus",
+    "Tomato_Septoria_leaf_spot": "Tomato Septoria leaf spot",
+    "Tomato_Spider_mites_Two_spotted_spider_mite": "Tomato Spider mites",
+    "Tomato__Target_Spot": "Tomato Target Spot",
+    "Tomato__Tomato_YellowLeaf__Curl_Virus": "Tomato Yellow Leaf Curl Virus",
+    "Tomato_healthy": "Tomato Healthy"
+};
+
+const app  = express();
+const PORT = process.env.PORT || 3000;
+
+// Sinkronisasi Database MySQL
+sequelize.sync().then(() => {
+  console.log('✅ Database MySQL terhubung dan tabel disinkronisasi.');
+}).catch(err => {
+  console.error('❌ Gagal menghubungi database MySQL. Pastikan XAMPP/MySQL menyala.', err);
+});
+
+// ── Konfigurasi Multer untuk upload gambar ───────────────────────────────
+const uploadDir = path.join(__dirname, 'public', 'uploads');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename:    (req, file, cb) => {
+    const unik = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, unik + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
+
+// ── Middleware ────────────────────────────────────────────────────────────
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// (Riwayat sekarang diambil dari MySQL)
+
+// ════════════════════════════════════════════════════════════════════════════
+// ROUTES
+// ════════════════════════════════════════════════════════════════════════════
+
+// GET / — Halaman Beranda
+app.get('/', (req, res) => {
+  res.render('pages/home', { activePage: 'home', title: 'TomatoScan — Deteksi Penyakit Tomat' });
+});
+
+// GET /predict — Halaman Prediksi (kosong)
+app.get('/predict', (req, res) => {
+  res.render('pages/predict', {
+    activePage: 'predict',
+    title: 'Prediksi Penyakit — TomatoScan',
+    result: null
+  });
+});
+
+// POST /predict — Proses upload & tampilkan hasil
+app.post('/predict', upload.single('image'), async (req, res) => {
+  // Simpan path gambar jika ada file yang diupload
+  const imgPath = req.file ? '/uploads/' + req.file.filename : null;
+
+  try {
+    let apiResult = null;
+    
+    // Jika ada file gambar, kirim ke backend Python FastAPI
+    if (req.file) {
+      // Menggunakan native fetch di Node.js (Node >= 18)
+      const fileBuffer = fs.readFileSync(req.file.path);
+      const blob = new Blob([fileBuffer], { type: req.file.mimetype });
+      
+      const formData = new FormData();
+      formData.append('file', blob, req.file.originalname);
+      
+      console.log('Mengirim gambar ke API Python...');
+      const response = await fetch('http://127.0.0.1:8000/predict', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (response.ok) {
+        apiResult = await response.json();
+        console.log('Hasil dari API Python:', apiResult);
+      } else {
+        console.error('API Python merespons dengan error:', response.status);
+      }
+    }
+    
+    if (!apiResult) {
+      throw new Error("Gagal mendapatkan prediksi dari backend.");
+    }
+    
+    // Gunakan murni data dari backend
+    const finalResult = apiResult;
+
+    // Ambil deskripsi dan treatment dari database berdasarkan label
+    const dbLabel = finalResult.disease && finalResult.disease.en ? (diseaseMapping[finalResult.disease.en] || finalResult.disease.en) : null;
+    if (dbLabel) {
+      const diseaseData = await Disease.findOne({ where: { label: dbLabel } });
+      if (diseaseData) {
+        try {
+          finalResult.symptoms = JSON.parse(diseaseData.symptoms || "[]");
+          finalResult.treatments = JSON.parse(diseaseData.treatments || "[]");
+        } catch (e) {
+          console.error("Gagal parse JSON dari DB");
+        }
+        finalResult.severityLabel = diseaseData.severityLabel || finalResult.severityLabel;
+        finalResult.severity = diseaseData.severity || finalResult.severity;
+        if (diseaseData.name_id && diseaseData.name_en) {
+          finalResult.disease.name = `${diseaseData.name_id} (${diseaseData.name_en})`;
+        }
+      }
+    }
+
+    // Tambahkan ke riwayat MySQL (tabel predictions)
+    const newEntry = await History.create({
+      disease_name: finalResult.disease.name,
+      severity: finalResult.severity,
+      accuracy: finalResult.accuracy,
+      img_path: imgPath,
+      result_json: JSON.stringify(finalResult)
+    });
+
+    res.render('pages/predict', {
+      activePage: 'predict',
+      title: 'Hasil Prediksi — TomatoScan',
+      result: { ...finalResult, imgPath }
+    });
+    
+  } catch (error) {
+    console.error('Error saat menghubungi API Python:', error);
+    
+    // Render error jika gagal (bukan dummy)
+    res.render('pages/predict', {
+      activePage: 'predict',
+      title: 'Hasil Prediksi — TomatoScan',
+      result: null,
+      error: 'Gagal terhubung ke AI model. Pastikan server Python sedang berjalan.'
+    });
+  }
+});
+
+// GET /history — Halaman Riwayat Prediksi
+app.get('/history', async (req, res) => {
+  try {
+    const dbHistory = await History.findAll({ order: [['createdAt', 'DESC']] });
+    // Format data kembali agar sesuai dengan struktur EJS
+    const historyList = dbHistory.map(entry => {
+      let resultData = {};
+      try {
+        resultData = JSON.parse(entry.result_json) || {};
+      } catch(e) {}
+      
+      const dateObj = entry.createdAt ? new Date(entry.createdAt) : new Date();
+      const dateStr = dateObj.toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
+
+      return {
+        id: entry.id,
+        disease: resultData.disease || { name: entry.disease_name, en: entry.disease_name },
+        accuracy: entry.accuracy,
+        severity: entry.severity,
+        severityLabel: resultData.severityLabel || entry.severity,
+        metrics: resultData.metrics || {},
+        symptoms: resultData.symptoms || [],
+        treatments: resultData.treatments || [],
+        imgPath: entry.img_path,
+        date: dateStr
+      };
+    });
+    
+    res.render('pages/history', {
+      activePage: 'history',
+      title: 'Riwayat Prediksi — TomatoScan',
+      historyList
+    });
+  } catch (error) {
+    console.error("Gagal mengambil riwayat:", error);
+    res.render('pages/history', { activePage: 'history', title: 'Riwayat Error', historyList: [] });
+  }
+});
+
+// GET /history/:id — Detail riwayat prediksi
+app.get('/history/:id', async (req, res) => {
+  try {
+    const entryData = await History.findByPk(req.params.id);
+    if (!entryData) return res.redirect('/history');
+    
+    let resultData = {};
+    try {
+      resultData = JSON.parse(entryData.result_json) || {};
+    } catch(e) {}
+
+    let symptoms = resultData.symptoms || [];
+    let treatments = resultData.treatments || [];
+    let severityLabel = resultData.severityLabel || entryData.severity;
+
+    if (resultData.disease && resultData.disease.en) {
+      const dbLabel = diseaseMapping[resultData.disease.en] || resultData.disease.en;
+      const diseaseData = await Disease.findOne({ where: { label: dbLabel } });
+      if (diseaseData) {
+        try {
+          symptoms = JSON.parse(diseaseData.symptoms || "[]");
+          treatments = JSON.parse(diseaseData.treatments || "[]");
+        } catch (e) {}
+        severityLabel = diseaseData.severityLabel || severityLabel;
+      }
+    }
+
+    const dateObj = entryData.createdAt ? new Date(entryData.createdAt) : new Date();
+    const dateStr = dateObj.toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
+
+    const entry = {
+      id: entryData.id,
+      disease: resultData.disease || { name: entryData.disease_name, en: entryData.disease_name },
+      accuracy: entryData.accuracy,
+      severity: entryData.severity,
+      severityLabel: severityLabel,
+      metrics: resultData.metrics || {},
+      symptoms: symptoms,
+      treatments: treatments,
+      imgPath: entryData.img_path,
+      date: dateStr
+    };
+
+    res.render('pages/detail', {
+      activePage: 'history',
+      title: `Detail: ${entry.disease.name} — TomatoScan`,
+      entry
+    });
+  } catch (error) {
+    console.error(error);
+    res.redirect('/history');
+  }
+});
+
+// POST /history/delete/:id — Hapus satu entri riwayat
+app.post('/history/delete/:id', async (req, res) => {
+  try {
+    await History.destroy({ where: { id: req.params.id } });
+  } catch (err) {
+    console.error(err);
+  }
+  res.redirect('/history');
+});
+
+// POST /history/clear — Hapus semua riwayat
+app.post('/history/clear', async (req, res) => {
+  try {
+    await History.destroy({ where: {}, truncate: true });
+  } catch (err) {
+    console.error(err);
+  }
+  res.redirect('/history');
+});
+
+// POST /history/batch-delete — Hapus riwayat terpilih
+app.post('/history/batch-delete', async (req, res) => {
+  try {
+    const idsString = req.body.ids;
+    if (idsString) {
+      const ids = idsString.split(',').map(id => id.trim()).filter(id => id);
+      if (ids.length > 0) {
+        await History.destroy({ where: { id: ids } });
+      }
+    }
+  } catch (err) {
+    console.error(err);
+  }
+  res.redirect('/history');
+});
+
+// ── Start server ──────────────────────────────────────────────────────────
+app.listen(PORT, () => {
+  console.log(`\n🍅 TomatoScan berjalan di: http://localhost:${PORT}`);
+  console.log(`   Tekan Ctrl+C untuk menghentikan server.\n`);
+});

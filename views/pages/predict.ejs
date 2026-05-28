@@ -1,0 +1,249 @@
+<!-- ====================================================================
+     pages/predict.ejs — Halaman Prediksi / Upload Gambar
+     EJS locals: result (null atau objek hasil), title, activePage
+     ==================================================================== -->
+
+<%- include('../layout/main_top') %>
+
+<div class="max-w-5xl mx-auto px-6 py-10">
+
+  <!-- Page header -->
+  <div class="mb-8">
+    <h1 class="font-heading font-extrabold text-2xl md:text-3xl text-[#1C1A16]">Prediksi Penyakit</h1>
+    <p class="text-[#7A7870] font-light mt-1">Unggah foto daun atau buah tomat yang ingin diperiksa.</p>
+  </div>
+
+  <!-- Layout 2 kolom: upload kiri, hasil kanan -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+
+    <!-- ── KIRI: Form Upload ───────────────────────────────────────────── -->
+    <div class="md:sticky md:top-24">
+      <form id="predict-form" action="/predict" method="POST" enctype="multipart/form-data">
+
+        <!-- Area Upload Drag & Drop -->
+        <div id="upload-area"
+             class="relative border-2 border-dashed border-[#E8E6E0] rounded-2xl
+                    hover:border-[#C0392B] hover:bg-[#FEF0EF]/50 transition-all duration-200
+                    cursor-pointer min-h-[260px] flex flex-col items-center justify-center text-center p-8">
+
+          <!-- Input file tersembunyi -->
+          <input type="file" id="file-input" name="image" accept="image/*"
+                 class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+
+          <!-- Placeholder sebelum pilih file -->
+          <div id="upload-placeholder">
+            <div class="w-16 h-16 rounded-2xl bg-[#FEF0EF] flex items-center justify-center mx-auto mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-[#C0392B]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <h3 class="font-heading font-bold text-base text-[#1C1A16] mb-1">Unggah Foto Tomat</h3>
+            <p class="text-sm text-[#7A7870] font-light">Klik atau seret gambar ke sini</p>
+            <p class="text-xs text-[#7A7870]/70 mt-2">JPG, PNG, WEBP &middot; Maks. 10 MB</p>
+          </div>
+
+          <!-- Preview gambar setelah dipilih -->
+          <img id="preview-img" alt="Preview gambar"
+               class="hidden rounded-xl object-cover w-full max-h-72 border border-[#E8E6E0]">
+        </div>
+
+        <!-- Bar nama file -->
+        <div id="file-name-bar"
+             class="hidden mt-3 bg-[#FAFAF8] border border-[#E8E6E0] rounded-xl px-4 py-2.5
+                    flex items-center gap-3 text-sm text-[#7A7870]">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#C0392B] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          <span id="file-name-text" class="truncate">-</span>
+          <button type="button" id="btn-clear-file" onclick="clearFile()"
+                  class="ml-auto text-[#7A7870] hover:text-[#C0392B] transition-colors flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Tombol Scan -->
+        <button type="submit" id="btn-scan"
+                disabled
+                class="w-full mt-4 bg-[#C0392B] text-white font-heading font-bold py-4 rounded-xl
+                       hover:bg-[#922B21] transition-all duration-200 flex items-center justify-center gap-2
+                       disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-lg
+                       hover:shadow-[#C0392B]/20 hover:-translate-y-0.5">
+          <svg id="btn-icon" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <span id="btn-text">Mulai Prediksi</span>
+        </button>
+      </form>
+
+      <!-- Tips -->
+      <div class="mt-4 bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 flex items-start gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <p class="text-xs text-amber-700 font-light leading-relaxed">
+          <strong class="font-semibold">Tips:</strong> Pastikan gambar memiliki pencahayaan yang baik dan fokus pada bagian yang terinfeksi untuk hasil akurasi terbaik.
+        </p>
+      </div>
+    </div>
+
+    <!-- ── KANAN: Hasil Prediksi ───────────────────────────────────────── -->
+    <div>
+
+      <% if (typeof error !== 'undefined' && error) { %>
+      <!-- Error state -->
+      <div class="bg-red-50 border border-red-200 rounded-2xl p-6 mb-6 text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-red-500 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <h3 class="font-heading font-bold text-base text-red-700 mb-1">Gagal Memproses</h3>
+        <p class="text-sm text-red-600 font-light"><%= error %></p>
+      </div>
+      <% } %>
+
+      <% if (!result && (typeof error === 'undefined' || !error)) { %>
+      <!-- Empty state -->
+      <div class="flex flex-col items-center justify-center text-center py-20 px-6">
+        <div class="w-20 h-20 rounded-2xl bg-[#FAFAF8] border border-[#E8E6E0] flex items-center justify-center mb-5">
+          <svg viewBox="0 0 24 24" fill="none" class="w-10 h-10">
+            <path d="M12 4 C12 4, 10 2, 8 3" stroke="#4CAF50" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M12 4 C12 4, 14 2, 16 3" stroke="#4CAF50" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M12 4 V7" stroke="#4CAF50" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="12" cy="14" r="7" fill="#C0392B" opacity="0.15"/>
+            <circle cx="12" cy="14" r="5" fill="#C0392B" opacity="0.2"/>
+            <circle cx="10" cy="12" r="2.5" fill="white" opacity="0.6"/>
+          </svg>
+        </div>
+        <h3 class="font-heading font-bold text-base text-[#1C1A16] mb-1">Belum Ada Hasil</h3>
+        <p class="text-sm text-[#7A7870] font-light leading-relaxed max-w-xs">
+          Unggah gambar dan klik "Mulai Prediksi" untuk melihat hasil analisis AI di sini.
+        </p>
+      </div>
+      <% } %>
+
+      <% if (result) { %>
+      <!-- Panel hasil prediksi -->
+      <div class="bg-white border border-[#E8E6E0] rounded-2xl p-6 animate-fade-in">
+
+        <!-- Header hasil -->
+        <div class="flex items-center justify-between mb-5">
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-[#2D7A3A] animate-pulse"></div>
+            <span class="font-heading font-bold text-sm text-[#1C1A16]">Hasil Deteksi</span>
+          </div>
+          <span class="bg-[#E8F5EA] text-[#2D7A3A] text-sm font-heading font-semibold px-3 py-1 rounded-full">
+            <%= result.accuracy %>% Akurasi
+          </span>
+        </div>
+
+        <!-- Gambar yang diupload (jika ada) -->
+        <% if (result.imgPath) { %>
+        <img src="<%= result.imgPath %>" alt="Gambar yang dianalisis"
+             class="w-full rounded-xl object-cover max-h-48 mb-5 border border-[#E8E6E0]">
+        <% } %>
+
+        <!-- Nama penyakit -->
+        <h2 class="font-heading font-extrabold text-xl text-[#C0392B] mb-0.5">
+          <%= result.disease.name %>
+        </h2>
+        <p class="text-sm text-[#7A7870] italic mb-5"><%= result.disease.en %></p>
+
+        <!-- Badge severity -->
+        <div class="flex items-center gap-2 rounded-xl px-4 py-3 mb-5 text-sm font-medium
+                    <%= result.severity === 'tinggi' ? 'bg-red-50 text-red-700' :
+                        result.severity === 'sedang' ? 'bg-amber-50 text-amber-700' :
+                        'bg-[#E8F5EA] text-[#2D7A3A]' %>">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          <%= result.severityLabel %>
+        </div>
+
+        <!-- Accuracy bar -->
+        <div class="mb-5">
+          <div class="flex justify-between text-xs text-[#7A7870] mb-1.5">
+            <span>Akurasi Model</span>
+            <span class="font-semibold text-[#1C1A16]"><%= result.accuracy %>%</span>
+          </div>
+          <div class="h-2 bg-[#E8E6E0] rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-[#C0392B] to-[#E06050] rounded-full acc-bar-fill"
+                 style="width: 0%"
+                 data-width="<%= result.accuracy %>%">
+            </div>
+          </div>
+        </div>
+
+        <!-- Metrics grid 4 kolom -->
+        <div class="mb-5">
+          <p class="text-xs font-heading font-bold uppercase tracking-widest text-[#7A7870] mb-3">
+            Metrik Evaluasi Model
+          </p>
+          <div class="grid grid-cols-4 gap-2">
+            <div class="bg-[#FAFAF8] border border-[#E8E6E0] rounded-xl p-3 text-center">
+              <div class="font-heading font-bold text-base text-[#1C1A16]"><%= result.accuracy %>%</div>
+              <div class="text-xs text-[#7A7870] mt-0.5">Accuracy</div>
+            </div>
+            <div class="bg-[#FAFAF8] border border-[#E8E6E0] rounded-xl p-3 text-center">
+              <div class="font-heading font-bold text-base text-[#1C1A16]"><%= result.metrics.precision %>%</div>
+              <div class="text-xs text-[#7A7870] mt-0.5">Precision</div>
+            </div>
+            <div class="bg-[#FAFAF8] border border-[#E8E6E0] rounded-xl p-3 text-center">
+              <div class="font-heading font-bold text-base text-[#1C1A16]"><%= result.metrics.recall %>%</div>
+              <div class="text-xs text-[#7A7870] mt-0.5">Recall</div>
+            </div>
+            <div class="bg-[#FAFAF8] border border-[#E8E6E0] rounded-xl p-3 text-center">
+              <div class="font-heading font-bold text-base text-[#1C1A16]"><%= result.metrics.f1 %>%</div>
+              <div class="text-xs text-[#7A7870] mt-0.5">F1-Score</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gejala umum — chips -->
+        <div class="mb-5">
+          <p class="text-xs font-heading font-bold uppercase tracking-widest text-[#7A7870] mb-3">Gejala Umum</p>
+          <div class="flex flex-wrap gap-2">
+            <% result.symptoms.forEach(function(symptom) { %>
+            <span class="inline-flex items-center bg-[#FAFAF8] border border-[#E8E6E0] rounded-full text-sm px-3 py-1 text-[#1C1A16]">
+              <%= symptom %>
+            </span>
+            <% }); %>
+          </div>
+        </div>
+
+        <!-- Saran Pengobatan -->
+        <div>
+          <p class="text-xs font-heading font-bold uppercase tracking-widest text-[#7A7870] mb-3">Saran Pengobatan</p>
+          <div class="space-y-3">
+            <% result.treatments.forEach(function(treatment) { %>
+            <div class="border-l-4 rounded-r-xl p-4 bg-[#FAFAF8]
+                        <%= treatment.type === 'green' ? 'border-l-[#2D7A3A]' :
+                            treatment.type === 'amber' ? 'border-l-amber-500' :
+                            'border-l-[#C0392B]' %>">
+              <h4 class="font-heading font-semibold text-sm text-[#1C1A16] mb-1"><%= treatment.title %></h4>
+              <p class="text-sm text-[#7A7870] font-light leading-relaxed"><%= treatment.text %></p>
+            </div>
+            <% }); %>
+          </div>
+        </div>
+
+        <!-- Link ke riwayat -->
+        <div class="mt-6 pt-5 border-t border-[#E8E6E0]">
+          <a href="/history"
+             class="w-full flex items-center justify-center gap-2 border border-[#E8E6E0]
+                    hover:border-[#C0392B] hover:text-[#C0392B] text-[#7A7870]
+                    font-heading font-semibold text-sm py-2.5 rounded-xl transition-all duration-200 no-underline">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+            Lihat Riwayat Prediksi
+          </a>
+        </div>
+      </div>
+      <% } %>
+
+    </div>
+  </div>
+</div>
+
+<%- include('../layout/main_bottom') %>
