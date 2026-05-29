@@ -124,26 +124,26 @@ const diseasesData = [
     ])
   },
   {
-    label: "Tomato Leaf Miner",
-    name_id: "Pengorok Daun",
-    name_en: "Leaf Miner",
+    label: "Tomato Powdery Mildew",
+    name_id: "Embun Tepung",
+    name_en: "Powdery Mildew",
     severity: "sedang",
     severityLabel: "Penyakit Terdeteksi — Perlu Penanganan",
     symptoms: JSON.stringify([
-      "Garis putih atau abu-abu transparan pada daun",
-      "Daun tampak seperti memiliki terowongan atau jalur berliku",
-      "Daun menjadi kering dan rontok pada serangan parah"
+      "Bercak putih seperti tepung pada permukaan daun",
+      "Daun menguning dan layu",
+      "Serangan parah dapat mematikan jaringan daun"
     ]),
     treatments: JSON.stringify([
       {
         "type": "amber",
-        "title": "Pestisida",
-        "text": "Gunakan insektisida sistemik yang dapat menembus jaringan daun untuk membunuh larva di dalam."
+        "title": "Fungisida",
+        "text": "Semprotkan fungisida berbahan aktif sulfur atau kalium bikarbonat."
       },
       {
         "type": "green",
-        "title": "Sanitasi",
-        "text": "Buang dan musnahkan daun yang terinfeksi untuk mencegah penyebaran lebih lanjut."
+        "title": "Sirkulasi Udara",
+        "text": "Tingkatkan jarak tanam dan pangkas daun bawah untuk mengurangi kelembaban."
       }
     ])
   }

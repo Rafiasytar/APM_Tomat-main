@@ -12,17 +12,17 @@ const History   = require('./models/History');
 const Disease   = require('./models/Disease');
 
 const diseaseMapping = {
-    "Tomato_Bacterial_spot": "Tomato Bacterial spot",
-    "Tomato_Early_blight": "Tomato Early blight",
-    "Tomato_Late_blight": "Tomato Late blight",
-    "Tomato_Leaf_Miner": "Tomato Leaf Miner",
-    "Tomato_Leaf_Mold": "Tomato Leaf Mold",
-    "Tomato_Mosaic_Virus": "Tomato mosaic virus",
-    "Tomato_Septoria_leaf_spot": "Tomato Septoria leaf spot",
-    "Tomato_Spider_mites_Two_spotted_spider_mite": "Tomato Spider mites",
-    "Tomato__Target_Spot": "Tomato Target Spot",
-    "Tomato__Tomato_YellowLeaf__Curl_Virus": "Tomato Yellow Leaf Curl Virus",
-    "Tomato_healthy": "Tomato Healthy"
+    "Bacterial_spot": "Tomato Bacterial spot",
+    "Early_blight": "Tomato Early blight",
+    "Late_blight": "Tomato Late blight",
+    "Leaf_Mold": "Tomato Leaf Mold",
+    "Septoria_leaf_spot": "Tomato Septoria leaf spot",
+    "Spider_mites Two-spotted_spider_mite": "Tomato Spider mites",
+    "Target_Spot": "Tomato Target Spot",
+    "Tomato_Yellow_Leaf_Curl_Virus": "Tomato Yellow Leaf Curl Virus",
+    "Tomato_mosaic_virus": "Tomato mosaic virus",
+    "healthy": "Tomato Healthy",
+    "powdery_mildew": "Tomato Powdery Mildew"
 };
 
 const app  = express();
@@ -108,6 +108,10 @@ app.post('/predict', upload.single('image'), async (req, res) => {
     
     if (!apiResult) {
       throw new Error("Gagal mendapatkan prediksi dari backend.");
+    }
+
+    if (apiResult.error) {
+      throw new Error("Backend Python Error: " + apiResult.error);
     }
     
     // Gunakan murni data dari backend
