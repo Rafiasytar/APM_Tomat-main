@@ -7,7 +7,10 @@ const express = require('express');
 const path    = require('path');
 const multer  = require('multer');
 const fs      = require('fs');
+const session = require('express-session');
+const bcrypt  = require('bcryptjs');
 const sequelize = require('./config/database');
+const User      = require('./models/User');
 const History   = require('./models/History');
 const Disease   = require('./models/Disease');
 
@@ -28,8 +31,18 @@ const diseaseMapping = {
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
+User.hasMany(History, { foreignKey: 'user_id' });
+History.belongsTo(User, { foreignKey: 'user_id' });
+
 // Sinkronisasi Database MySQL
-sequelize.sync().then(() => {
+sequelize.sync().then(async () => {
+  const tableInfo = await sequelize.getQueryInterface().describeTable('predictions');
+  if (!tableInfo.user_id) {
+    await sequelize.getQueryInterface().addColumn('predictions', 'user_id', {
+      type: require('sequelize').DataTypes.INTEGER,
+      allowNull: true
+    });
+  }
   console.log('✅ Database MySQL terhubung dan tabel disinkronisasi.');
 }).catch(err => {
   console.error('❌ Gagal menghubungi database MySQL. Pastikan XAMPP/MySQL menyala.', err);
@@ -54,6 +67,19 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'tomatoscan-local-session-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24
+  }
+}));
+
+app.use((req, res, next) => {
+  res.locals.currentUser = req.session.user || null;
+  next();
+});
 
 // (Riwayat sekarang diambil dari MySQL)
 
@@ -62,6 +88,129 @@ app.use(express.json());
 // ════════════════════════════════════════════════════════════════════════════
 
 // GET / — Halaman Beranda
+function normalizeEmail(email) {
+  return String(email || '').trim().toLowerCase();
+}
+
+function redirectIfLoggedIn(req, res, next) {
+  if (req.session.user) return res.redirect('/');
+  next();
+}
+
+// GET /login - Halaman masuk
+app.get('/login', redirectIfLoggedIn, (req, res) => {
+  res.render('pages/login', {
+    activePage: 'login',
+    title: 'Masuk - TomatoScan',
+    error: null,
+    success: req.query.registered ? 'Akun berhasil dibuat. Silakan masuk untuk melihat riwayat prediksi.' : null,
+    old: {}
+  });
+});
+
+// POST /login - Proses masuk
+app.post('/login', redirectIfLoggedIn, async (req, res) => {
+  const email = normalizeEmail(req.body.email);
+  const password = req.body.password || '';
+
+  try {
+    const user = await User.findOne({ where: { email } });
+    const isValidPassword = user ? await bcrypt.compare(password, user.password_hash) : false;
+
+    if (!user || !isValidPassword) {
+      return res.status(401).render('pages/login', {
+        activePage: 'login',
+        title: 'Masuk - TomatoScan',
+        error: 'Email atau kata sandi tidak sesuai.',
+        success: null,
+        old: { email }
+      });
+    }
+
+    req.session.user = {
+      id: user.id,
+      name: user.name,
+      email: user.email
+    };
+
+    res.redirect('/');
+  } catch (error) {
+    console.error('Gagal login:', error);
+    res.status(500).render('pages/login', {
+      activePage: 'login',
+      title: 'Masuk - TomatoScan',
+      error: 'Terjadi kesalahan saat masuk. Coba lagi sebentar.',
+      success: null,
+      old: { email }
+    });
+  }
+});
+
+// GET /register - Halaman daftar
+app.get('/register', redirectIfLoggedIn, (req, res) => {
+  res.render('pages/register', {
+    activePage: 'register',
+    title: 'Daftar - TomatoScan',
+    error: null,
+    old: {}
+  });
+});
+
+// POST /register - Proses daftar akun
+app.post('/register', redirectIfLoggedIn, async (req, res) => {
+  const name = String(req.body.name || '').trim();
+  const email = normalizeEmail(req.body.email);
+  const password = req.body.password || '';
+  const confirmPassword = req.body.confirmPassword || '';
+  const agreed = req.body.terms === 'on';
+
+  const renderRegisterError = (message) => res.status(400).render('pages/register', {
+    activePage: 'register',
+    title: 'Daftar - TomatoScan',
+    error: message,
+    old: { name, email }
+  });
+
+  if (!name || !email || !password || !confirmPassword) {
+    return renderRegisterError('Semua field wajib diisi.');
+  }
+
+  if (password.length < 6) {
+    return renderRegisterError('Kata sandi minimal 6 karakter.');
+  }
+
+  if (password !== confirmPassword) {
+    return renderRegisterError('Konfirmasi kata sandi tidak sama.');
+  }
+
+  if (!agreed) {
+    return renderRegisterError('Centang persetujuan syarat dan ketentuan terlebih dahulu.');
+  }
+
+  try {
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return renderRegisterError('Email sudah terdaftar. Silakan masuk dengan akun tersebut.');
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    await User.create({ name, email, password_hash: passwordHash });
+
+    res.redirect('/login?registered=1');
+  } catch (error) {
+    console.error('Gagal daftar:', error);
+    renderRegisterError('Terjadi kesalahan saat membuat akun. Coba lagi sebentar.');
+  }
+});
+
+// POST /logout - Keluar akun
+app.post('/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.clearCookie('connect.sid');
+    res.redirect('/');
+  });
+});
+
 app.get('/', (req, res) => {
   res.render('pages/home', { activePage: 'home', title: 'TomatoScan — Deteksi Penyakit Tomat' });
 });
@@ -136,14 +285,17 @@ app.post('/predict', upload.single('image'), async (req, res) => {
       }
     }
 
-    // Tambahkan ke riwayat MySQL (tabel predictions)
-    const newEntry = await History.create({
-      disease_name: finalResult.disease.name,
-      severity: finalResult.severity,
-      accuracy: finalResult.accuracy,
-      img_path: imgPath,
-      result_json: JSON.stringify(finalResult)
-    });
+    // Simpan riwayat hanya untuk pengguna yang sudah login.
+    if (req.session.user) {
+      await History.create({
+        user_id: req.session.user.id,
+        disease_name: finalResult.disease.name,
+        severity: finalResult.severity,
+        accuracy: finalResult.accuracy,
+        img_path: imgPath,
+        result_json: JSON.stringify(finalResult)
+      });
+    }
 
     res.render('pages/predict', {
       activePage: 'predict',
@@ -166,8 +318,20 @@ app.post('/predict', upload.single('image'), async (req, res) => {
 
 // GET /history — Halaman Riwayat Prediksi
 app.get('/history', async (req, res) => {
+  if (!req.session.user) {
+    return res.render('pages/history', {
+      activePage: 'history',
+      title: 'Riwayat Prediksi - TomatoScan',
+      historyList: [],
+      isAuthenticated: false
+    });
+  }
+
   try {
-    const dbHistory = await History.findAll({ order: [['createdAt', 'DESC']] });
+    const dbHistory = await History.findAll({
+      where: { user_id: req.session.user.id },
+      order: [['createdAt', 'DESC']]
+    });
     // Format data kembali agar sesuai dengan struktur EJS
     const historyList = dbHistory.map(entry => {
       let resultData = {};
@@ -195,18 +359,23 @@ app.get('/history', async (req, res) => {
     res.render('pages/history', {
       activePage: 'history',
       title: 'Riwayat Prediksi — TomatoScan',
-      historyList
+      historyList,
+      isAuthenticated: true
     });
   } catch (error) {
     console.error("Gagal mengambil riwayat:", error);
-    res.render('pages/history', { activePage: 'history', title: 'Riwayat Error', historyList: [] });
+    res.render('pages/history', { activePage: 'history', title: 'Riwayat Error', historyList: [], isAuthenticated: true });
   }
 });
 
 // GET /history/:id — Detail riwayat prediksi
 app.get('/history/:id', async (req, res) => {
+  if (!req.session.user) return res.redirect('/history');
+
   try {
-    const entryData = await History.findByPk(req.params.id);
+    const entryData = await History.findOne({
+      where: { id: req.params.id, user_id: req.session.user.id }
+    });
     if (!entryData) return res.redirect('/history');
     
     let resultData = {};
@@ -259,8 +428,10 @@ app.get('/history/:id', async (req, res) => {
 
 // POST /history/delete/:id — Hapus satu entri riwayat
 app.post('/history/delete/:id', async (req, res) => {
+  if (!req.session.user) return res.redirect('/history');
+
   try {
-    await History.destroy({ where: { id: req.params.id } });
+    await History.destroy({ where: { id: req.params.id, user_id: req.session.user.id } });
   } catch (err) {
     console.error(err);
   }
@@ -269,8 +440,10 @@ app.post('/history/delete/:id', async (req, res) => {
 
 // POST /history/clear — Hapus semua riwayat
 app.post('/history/clear', async (req, res) => {
+  if (!req.session.user) return res.redirect('/history');
+
   try {
-    await History.destroy({ where: {}, truncate: true });
+    await History.destroy({ where: { user_id: req.session.user.id } });
   } catch (err) {
     console.error(err);
   }
@@ -279,12 +452,14 @@ app.post('/history/clear', async (req, res) => {
 
 // POST /history/batch-delete — Hapus riwayat terpilih
 app.post('/history/batch-delete', async (req, res) => {
+  if (!req.session.user) return res.redirect('/history');
+
   try {
     const idsString = req.body.ids;
     if (idsString) {
       const ids = idsString.split(',').map(id => id.trim()).filter(id => id);
       if (ids.length > 0) {
-        await History.destroy({ where: { id: ids } });
+        await History.destroy({ where: { id: ids, user_id: req.session.user.id } });
       }
     }
   } catch (err) {

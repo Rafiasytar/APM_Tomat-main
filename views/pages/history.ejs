@@ -7,6 +7,31 @@
 
 <div class="max-w-6xl mx-auto px-6 py-10">
 
+  <% if (typeof isAuthenticated !== 'undefined' && !isAuthenticated) { %>
+  <div class="min-h-[60vh] flex items-center justify-center">
+    <div class="w-full max-w-xl text-center bg-white border border-[#E8E6E0] rounded-2xl px-6 py-12 shadow-sm">
+      <div class="w-20 h-20 rounded-2xl bg-[#FEF0EF] border border-[#FCDAD7] flex items-center justify-center mx-auto mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-[#C0392B]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V7.5a4.5 4.5 0 10-9 0v3m-.75 0h10.5A1.75 1.75 0 0119 12.25v6A1.75 1.75 0 0117.25 20H6.75A1.75 1.75 0 015 18.25v-6a1.75 1.75 0 011.75-1.75z" />
+        </svg>
+      </div>
+      <h1 class="font-heading font-extrabold text-2xl md:text-3xl text-[#1C1A16] mb-3">Akses Terbatas</h1>
+      <p class="text-[#7A7870] font-light leading-relaxed mb-7">
+        Masukkan akun terlebih dahulu untuk melihat riwayat prediksi. Hasil scan hanya akan tersimpan setelah Anda masuk ke akun.
+      </p>
+      <a href="/login"
+         class="inline-flex items-center justify-center gap-2 bg-[#C0392B] hover:bg-[#922B21] text-white
+                font-heading font-semibold px-7 py-3 rounded-xl transition-all duration-200 no-underline">
+        Masuk
+      </a>
+      <p class="text-sm text-[#7A7870] mt-5">
+        Belum punya akun?
+        <a href="/register" class="font-heading font-bold text-[#C0392B] hover:underline no-underline">Daftar Sekarang</a>
+      </p>
+    </div>
+  </div>
+  <% } else { %>
+
   <!-- Header riwayat -->
   <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
     <div>
@@ -332,6 +357,8 @@
     </div>
   </div>
   <% }); %>
+
+  <% } %>
 
   <% } %>
 </div>

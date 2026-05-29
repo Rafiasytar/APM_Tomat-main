@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght@100..700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #FAFAF8; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+    .glass-card { background: rgba(255, 255, 255, 0.84); backdrop-filter: blur(12px); border: 1px solid #E5E7EB; }
+    .page-bg { background: #FAFAF8; }
+    .form-input:focus { border-color: #922b1e; box-shadow: 0 0 0 3px rgba(146, 43, 30, 0.12); }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col page-bg text-[#191c1d]">
+  <main class="flex-1 w-full max-w-6xl mx-auto grid md:grid-cols-2 gap-10 items-center px-6 py-10 lg:py-14">
+    <section class="hidden md:flex flex-col gap-6">
+      <div class="relative w-full aspect-square rounded-[28px] overflow-hidden shadow-2xl">
+        <img
+          src="https://images.unsplash.com/photo-1598512752271-33f913a5af13?auto=format&fit=crop&w=1400&q=80"
+          alt="Healthy tomato plant"
+          class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent flex flex-col justify-end p-8">
+          <h1 class="text-white text-3xl font-extrabold mb-3">Solusi cerdas untuk petani modern.</h1>
+          <p class="text-white/90 leading-relaxed">TomatoScan membantu menganalisis gambar daun tomat dan memberikan hasil prediksi penyakit beserta penanganannya.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="w-full">
+      <div class="mb-7">
+        <h2 class="text-3xl font-extrabold text-[#191c1d] mb-2">Buat Akun Baru</h2>
+        <p class="text-[#57423e]">Mulai pantau kesehatan tanaman tomat Anda dengan mudah.</p>
+      </div>
+
+      <% if (error) { %>
+        <div class="mb-5 rounded-lg border border-[#F9B6B0] bg-[#FEF0EF] px-4 py-3 text-sm font-medium text-[#922B21]"><%= error %></div>
+      <% } %>
+
+      <form action="/register" method="POST" class="glass-card p-6 md:p-8 rounded-xl shadow-sm flex flex-col gap-5">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-bold text-[#57423e]" for="name">Nama Lengkap</label>
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#57423e]">person</span>
+            <input class="form-input w-full pl-10 pr-4 py-3 rounded-lg border border-[#dec0bb] bg-white outline-none transition-all" id="name" name="name" value="<%= old.name || '' %>" placeholder="Masukkan nama lengkap" required type="text">
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-bold text-[#57423e]" for="email">Email</label>
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#57423e]">mail</span>
+            <input class="form-input w-full pl-10 pr-4 py-3 rounded-lg border border-[#dec0bb] bg-white outline-none transition-all" id="email" name="email" value="<%= old.email || '' %>" placeholder="contoh@email.com" required type="email">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-bold text-[#57423e]" for="password">Kata Sandi</label>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#57423e]">lock</span>
+              <input class="form-input w-full pl-10 pr-4 py-3 rounded-lg border border-[#dec0bb] bg-white outline-none transition-all" id="password" name="password" placeholder="Minimal 6 karakter" required type="password">
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-bold text-[#57423e]" for="confirmPassword">Konfirmasi Kata Sandi</label>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#57423e]">lock_reset</span>
+              <input class="form-input w-full pl-10 pr-4 py-3 rounded-lg border border-[#dec0bb] bg-white outline-none transition-all" id="confirmPassword" name="confirmPassword" placeholder="Ulangi kata sandi" required type="password">
+            </div>
+          </div>
+        </div>
+
+        <label class="flex items-start gap-3 py-1 cursor-pointer">
+          <input class="mt-1 w-5 h-5 rounded border-[#dec0bb] text-[#922b1e] focus:ring-[#922b1e]" id="terms" name="terms" type="checkbox" required>
+          <span class="text-sm leading-relaxed text-[#57423e]">Saya menyetujui syarat dan ketentuan yang berlaku.</span>
+        </label>
+
+        <button class="w-full bg-[#b34333] hover:bg-[#922b1e] text-white py-4 rounded-lg text-lg font-extrabold flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-md" type="submit">
+          <span class="material-symbols-outlined">person_add</span>
+          Daftar Sekarang
+        </button>
+      </form>
+
+      <p class="text-center text-[#57423e] mt-7">
+        Sudah punya akun?
+        <a class="text-[#922b1e] font-extrabold hover:underline" href="/login">Masuk disini</a>
+      </p>
+    </section>
+  </main>
+</body>
+</html>

@@ -55,17 +55,32 @@
       </li>
     </ul>
 
-    <!-- Tombol CTA kanan -->
-    <a href="/predict"
-       class="hidden md:inline-flex items-center gap-2 bg-[#C0392B] hover:bg-[#922B21]
-              text-white text-sm font-heading font-semibold px-4 py-2 rounded-lg
-              transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 no-underline">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-      </svg>
-      Mulai Scan
-    </a>
+    <!-- Tombol akun kanan -->
+    <div class="hidden md:flex items-center gap-3">
+      <% if (currentUser) { %>
+        <span class="max-w-[160px] truncate text-sm font-heading font-semibold text-[#1C1A16]"><%= currentUser.name %></span>
+        <form action="/logout" method="POST" class="m-0">
+          <button type="submit"
+                  class="inline-flex items-center gap-2 bg-[#FAFAF8] hover:bg-[#FEF0EF] border border-[#E8E6E0]
+                         text-[#C0392B] text-sm font-heading font-semibold px-4 py-2 rounded-lg transition-all duration-200">
+            Keluar
+          </button>
+        </form>
+      <% } else { %>
+        <a href="/register"
+           class="inline-flex items-center gap-2 bg-white hover:bg-[#FEF0EF] border border-[#FCDAD7]
+                  text-[#C0392B] text-sm font-heading font-semibold px-4 py-2 rounded-lg
+                  transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 no-underline">
+          Daftar
+        </a>
+        <a href="/login"
+           class="inline-flex items-center gap-2 bg-[#C0392B] hover:bg-[#922B21]
+                  text-white text-sm font-heading font-semibold px-4 py-2 rounded-lg
+                  transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 no-underline">
+          Masuk
+        </a>
+      <% } %>
+    </div>
 
     <!-- Hamburger mobile (toggle) -->
     <button id="mobile-menu-btn"
@@ -96,5 +111,26 @@
               <%= activePage === 'history' ? 'bg-[#FEF0EF] text-[#C0392B]' : 'text-[#7A7870] hover:text-[#C0392B]' %>">
       📋 Riwayat Prediksi
     </a>
+    <% if (currentUser) { %>
+      <div class="px-3 py-2 text-xs font-semibold text-[#1C1A16]">
+        Masuk sebagai <%= currentUser.name %>
+      </div>
+      <form action="/logout" method="POST" class="px-3">
+        <button type="submit" class="w-full text-left text-sm font-medium py-2 rounded-lg text-[#C0392B]">
+          Keluar
+        </button>
+      </form>
+    <% } else { %>
+      <a href="/login"
+         class="block text-sm font-medium px-3 py-2 rounded-lg transition-colors no-underline
+                <%= activePage === 'login' ? 'bg-[#FEF0EF] text-[#C0392B]' : 'text-[#7A7870] hover:text-[#C0392B]' %>">
+        Masuk
+      </a>
+      <a href="/register"
+         class="block text-sm font-medium px-3 py-2 rounded-lg transition-colors no-underline
+                <%= activePage === 'register' ? 'bg-[#FEF0EF] text-[#C0392B]' : 'text-[#7A7870] hover:text-[#C0392B]' %>">
+        Daftar
+      </a>
+    <% } %>
   </div>
 </nav>

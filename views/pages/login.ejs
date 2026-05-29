@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght@100..700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #FAFAF8; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .form-input:focus { border-color: #922b1e; box-shadow: 0 0 0 3px rgba(146, 43, 30, 0.12); }
+  </style>
+</head>
+<body class="min-h-screen overflow-x-hidden text-[#191c1d]">
+  <main class="flex min-h-screen">
+    <section class="hidden lg:flex w-1/2 relative bg-[#922b1e] items-center justify-center overflow-hidden">
+      <img
+        src="https://images.unsplash.com/photo-1592841200221-a6898f307baa?auto=format&fit=crop&w=1400&q=80"
+        alt="Tomato greenhouse"
+        class="absolute inset-0 w-full h-full object-cover opacity-55 mix-blend-overlay scale-105">
+      <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 32px 32px;"></div>
+      <div class="relative z-10 px-16 text-white max-w-xl">
+        <a href="/" class="inline-flex items-center gap-2.5 mb-10 no-underline group">
+          <div class="w-10 h-10 rounded-lg bg-[#C0392B] flex items-center justify-center shadow-sm group-hover:bg-[#922B21] transition-colors">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6">
+              <path d="M12 4 C12 4, 10 2, 8 3" stroke="#4CAF50" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M12 4 C12 4, 14 2, 16 3" stroke="#4CAF50" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M12 4 V7" stroke="#4CAF50" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="12" cy="14" r="7" fill="rgba(255,255,255,0.9)"/>
+              <circle cx="10" cy="12" r="2.5" fill="rgba(255,255,255,0.4)"/>
+            </svg>
+          </div>
+          <span class="text-3xl font-extrabold tracking-tight text-white">
+            Tomato<span class="text-white/90">Scan</span>
+          </span>
+        </a>
+        <h1 class="text-4xl font-extrabold leading-tight mb-5">Mendiagnosis kesehatan tanaman melalui teknologi presisi.</h1>
+        <p class="text-white/90 text-lg leading-relaxed">Masuk untuk menyimpan riwayat prediksi secara pribadi dan memantau kondisi tanaman dari waktu ke waktu.</p>
+        <div class="mt-10 flex flex-wrap gap-3">
+          <span class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 text-sm font-semibold">
+            <span class="material-symbols-outlined text-base">history</span> Riwayat pribadi
+          </span>
+          <span class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 text-sm font-semibold">
+            <span class="material-symbols-outlined text-base">speed</span> Analisis instan
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <section class="w-full lg:w-1/2 flex items-center justify-center px-6 py-12 lg:px-20 bg-[#FAFAF8]">
+      <div class="w-full max-w-md">
+        <a href="/" class="flex lg:hidden items-center gap-2.5 mb-10 no-underline group">
+          <div class="w-8 h-8 rounded-lg bg-[#C0392B] flex items-center justify-center shadow-sm group-hover:bg-[#922B21] transition-colors">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
+              <path d="M12 4 C12 4, 10 2, 8 3" stroke="#4CAF50" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M12 4 C12 4, 14 2, 16 3" stroke="#4CAF50" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M12 4 V7" stroke="#4CAF50" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="12" cy="14" r="7" fill="rgba(255,255,255,0.9)"/>
+              <circle cx="10" cy="12" r="2.5" fill="rgba(255,255,255,0.4)"/>
+            </svg>
+          </div>
+          <span class="text-2xl font-extrabold text-[#1C1A16] tracking-tight">
+            Tomato<span class="text-[#C0392B]">Scan</span>
+          </span>
+        </a>
+
+        <div class="mb-8">
+          <h2 class="text-3xl font-extrabold text-[#191c1d] mb-2">Masuk ke TomatoScan</h2>
+          <p class="text-[#57423e]">Selamat datang kembali, silakan masuk ke akun Anda.</p>
+        </div>
+
+        <% if (success) { %>
+          <div class="mb-5 rounded-lg border border-[#A5D6AA] bg-[#E8F5EA] px-4 py-3 text-sm font-medium text-[#1E5228]"><%= success %></div>
+        <% } %>
+        <% if (error) { %>
+          <div class="mb-5 rounded-lg border border-[#F9B6B0] bg-[#FEF0EF] px-4 py-3 text-sm font-medium text-[#922B21]"><%= error %></div>
+        <% } %>
+
+        <form action="/login" method="POST" class="space-y-5">
+          <div class="space-y-2">
+            <label for="email" class="text-sm font-bold text-[#191c1d]">Email</label>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#8b716d]">person</span>
+              <input id="email" name="email" value="<%= old.email || '' %>" required type="email" placeholder="contoh@email.com" class="form-input w-full h-14 pl-12 pr-4 bg-white border border-[#dec0bb] rounded-lg outline-none transition-all">
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label for="password" class="text-sm font-bold text-[#191c1d]">Kata Sandi</label>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#8b716d]">lock</span>
+              <input id="password" name="password" required type="password" placeholder="Masukkan kata sandi" class="form-input w-full h-14 pl-12 pr-12 bg-white border border-[#dec0bb] rounded-lg outline-none transition-all">
+              <button class="absolute right-4 top-1/2 -translate-y-1/2 text-[#8b716d] hover:text-[#191c1d]" onclick="togglePassword()" type="button" aria-label="Tampilkan kata sandi">
+                <span class="material-symbols-outlined" id="eyeIcon">visibility</span>
+              </button>
+            </div>
+          </div>
+
+          <button class="w-full h-14 bg-[#b34333] hover:bg-[#922b1e] text-white rounded-lg text-lg font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98]" type="submit">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">login</span>
+            Masuk
+          </button>
+        </form>
+
+        <p class="text-center text-[#57423e] mt-8">
+          Belum punya akun?
+          <a class="text-[#922b1e] font-extrabold hover:underline" href="/register">Daftar Sekarang</a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function togglePassword() {
+      const passwordInput = document.getElementById('password');
+      const eyeIcon = document.getElementById('eyeIcon');
+      const isPassword = passwordInput.type === 'password';
+      passwordInput.type = isPassword ? 'text' : 'password';
+      eyeIcon.textContent = isPassword ? 'visibility_off' : 'visibility';
+    }
+  </script>
+</body>
+</html>

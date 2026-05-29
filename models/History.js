@@ -7,6 +7,10 @@ const History = sequelize.define('History', {
     primaryKey: true,
     autoIncrement: true
   },
+  user_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
   disease_name: {
     type: DataTypes.STRING,
     allowNull: true
