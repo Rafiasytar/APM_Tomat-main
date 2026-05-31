@@ -65,33 +65,39 @@
 
   <% } else { %>
   <!-- ── FILTER CHIPS & BATCH ACTIONS ───────────────────────────────────── -->
+  <%
+    const diseaseFilters = [];
+    const diseaseFilterKeys = new Set();
+    function diseaseFilterKey(entry) {
+      const value = entry && entry.disease ? (entry.disease.en || entry.disease.name) : 'unknown';
+      return String(value || 'unknown').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'unknown';
+    }
+    historyList.forEach(entry => {
+      const key = diseaseFilterKey(entry);
+      if (!diseaseFilterKeys.has(key)) {
+        diseaseFilterKeys.add(key);
+        diseaseFilters.push({
+          key,
+          label: entry && entry.disease ? (entry.disease.name || entry.disease.en || 'Tidak diketahui') : 'Tidak diketahui'
+        });
+      }
+    });
+  %>
   <div class="flex flex-wrap items-center justify-between gap-4 mb-6 bg-white border border-[#E8E6E0] rounded-2xl px-4 py-3">
     
-    <!-- Kiri: Filter Chips -->
-    <div class="flex gap-2 flex-wrap items-center">
-      <button onclick="filterCards('semua', this)"
-              class="filter-chip bg-white border border-[#C0392B] text-[#C0392B]
-                     text-sm px-5 py-1.5 rounded-full font-medium transition-all cursor-pointer flex items-center gap-2">
-        Semua
-      </button>
-      <button onclick="filterCards('tinggi', this)"
-              class="filter-chip bg-white border border-[#E8E6E0] text-[#7A7870]
-                     text-sm px-4 py-1.5 rounded-full font-medium transition-all cursor-pointer flex items-center gap-2
-                     hover:border-[#C0392B] hover:text-[#C0392B] hover:bg-[#FEF0EF]">
-        <span class="w-2.5 h-2.5 rounded-full bg-[#E74C3C]"></span> Kritis
-      </button>
-      <button onclick="filterCards('sedang', this)"
-              class="filter-chip bg-white border border-[#E8E6E0] text-[#7A7870]
-                     text-sm px-4 py-1.5 rounded-full font-medium transition-all cursor-pointer flex items-center gap-2
-                     hover:border-amber-500 hover:text-amber-600 hover:bg-amber-50">
-        <span class="w-2.5 h-2.5 rounded-full bg-[#F39C12]"></span> Sedang
-      </button>
-      <button onclick="filterCards('rendah', this)"
-              class="filter-chip bg-white border border-[#E8E6E0] text-[#7A7870]
-                     text-sm px-4 py-1.5 rounded-full font-medium transition-all cursor-pointer flex items-center gap-2
-                     hover:border-[#2D7A3A] hover:text-[#2D7A3A] hover:bg-[#E8F5EA]">
-        <span class="w-2.5 h-2.5 rounded-full bg-[#2ECC71]"></span> Sehat
-      </button>
+    <!-- Kiri: Filter penyakit -->
+    <div class="flex items-center gap-3">
+      <label for="diseaseFilter" class="text-sm font-heading font-bold text-[#1C1A16]">Jenis Penyakit</label>
+      <select id="diseaseFilter"
+              onchange="filterCards(this.value)"
+              class="min-w-[240px] max-w-full bg-white border border-[#E8E6E0] text-[#1C1A16]
+                     text-sm px-4 py-2 rounded-xl font-medium outline-none transition-all cursor-pointer
+                     focus:border-[#C0392B] focus:ring-2 focus:ring-[#FCDAD7]">
+        <option value="semua">Semua</option>
+        <% diseaseFilters.forEach(filter => { %>
+        <option value="<%= filter.key %>"><%= filter.label %></option>
+        <% }) %>
+      </select>
     </div>
 
     <!-- Kanan: Batch Actions -->
@@ -121,7 +127,7 @@
     <% historyList.forEach(function(entry) { %>
     <div class="history-card bg-white border border-[#E8E6E0] rounded-2xl overflow-hidden
                 hover:-translate-y-1 hover:shadow-lg transition-all duration-200 group relative cursor-pointer"
-         data-severity="<%= entry.severity %>"
+         data-disease="<%= diseaseFilterKey(entry) %>"
          onclick="openDetailModal('<%= entry.id %>')">
 
       <!-- Thumbnail -->
@@ -142,16 +148,6 @@
       <!-- Checkbox hidden until hovered or selected -->
       <div class="absolute top-2 left-2 z-10" onclick="event.stopPropagation()">
         <input type="checkbox" class="card-checkbox w-5 h-5 rounded border-gray-300 text-[#C0392B] focus:ring-[#C0392B] shadow-sm bg-white cursor-pointer" value="<%= entry.id %>" onchange="updateBatchSelection()">
-      </div>
-
-      <!-- Badge severity overlay -->
-      <div class="absolute top-2 right-2 z-10">
-        <span class="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide shadow-sm
-                     <%= entry.severity === 'tinggi' ? 'bg-[#E74C3C] text-white' :
-                         entry.severity === 'sedang' ? 'bg-[#F39C12] text-white' :
-                         'bg-[#2D7A3A] text-white' %>">
-          <%= entry.severity === 'tinggi' ? 'TINGGI' : entry.severity === 'sedang' ? 'SEDANG' : 'RENDAH' %>
-        </span>
       </div>
 
       <!-- Body kartu -->
@@ -192,43 +188,10 @@
       }
     }
 
-    // Filter kartu berdasarkan severity
-    function filterCards(severity, btn) {
-      // Reset semua chip
-      document.querySelectorAll('.filter-chip').forEach(c => {
-        let label = c.innerText.trim();
-        let html = '';
-        if (label.includes('Kritis')) html = '<span class="w-2.5 h-2.5 rounded-full bg-[#E74C3C]"></span> Kritis';
-        else if (label.includes('Sedang')) html = '<span class="w-2.5 h-2.5 rounded-full bg-[#F39C12]"></span> Sedang';
-        else if (label.includes('Sehat')) html = '<span class="w-2.5 h-2.5 rounded-full bg-[#2ECC71]"></span> Sehat';
-        else html = 'Semua';
-        
-        c.className = 'filter-chip bg-white border border-[#E8E6E0] text-[#7A7870] text-sm px-4 py-1.5 rounded-full font-medium transition-all cursor-pointer flex items-center gap-2 hover:border-[#C0392B] hover:text-[#C0392B] hover:bg-[#FEF0EF]';
-        if (label === 'Semua') {
-          c.className = 'filter-chip bg-white border border-[#E8E6E0] text-[#7A7870] text-sm px-5 py-1.5 rounded-full font-medium transition-all cursor-pointer flex items-center gap-2 hover:border-[#C0392B] hover:text-[#C0392B] hover:bg-[#FEF0EF]';
-        }
-        c.innerHTML = html;
-      });
-
-      // Set style chip aktif
-      btn.className = 'filter-chip text-sm py-1.5 rounded-full font-medium transition-all cursor-pointer flex items-center gap-2 ';
-      if (severity === 'semua') {
-        btn.classList.add('bg-white', 'border', 'border-[#C0392B]', 'text-[#C0392B]', 'px-5');
-        btn.innerHTML = 'Semua';
-      } else if (severity === 'tinggi') {
-        btn.classList.add('bg-[#FEF0EF]', 'border', 'border-[#C0392B]', 'text-[#C0392B]', 'px-4');
-        btn.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-[#E74C3C]"></span> Kritis';
-      } else if (severity === 'sedang') {
-        btn.classList.add('bg-amber-50', 'border', 'border-amber-500', 'text-amber-600', 'px-4');
-        btn.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-[#F39C12]"></span> Sedang';
-      } else {
-        btn.classList.add('bg-[#E8F5EA]', 'border', 'border-[#2D7A3A]', 'text-[#2D7A3A]', 'px-4');
-        btn.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-[#2ECC71]"></span> Sehat';
-      }
-
-      // Tampilkan/sembunyikan kartu
+    // Filter kartu berdasarkan jenis penyakit
+    function filterCards(disease) {
       document.querySelectorAll('.history-card').forEach(card => {
-        card.style.display = (severity === 'semua' || card.dataset.severity === severity) ? '' : 'none';
+        card.style.display = (disease === 'semua' || card.dataset.disease === disease) ? '' : 'none';
       });
       updateBatchSelection(); // Reset selection on filter
     }

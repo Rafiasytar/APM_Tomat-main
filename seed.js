@@ -32,7 +32,7 @@ const diseasesData = [
     name_id: "Tomat Sehat",
     name_en: "Healthy",
     severity: "rendah",
-    severityLabel: "Kondisi Prima",
+    severityLabel: "Kondisi Sehat",
     symptoms: JSON.stringify(["Daun hijau segar","Tidak ada bercak/lesi","Pertumbuhan normal"]),
     treatments: JSON.stringify([
       {"type":"green","title":"Perawatan Lanjutan","text":"Teruskan penyiraman dan pemupukan rutin."},
